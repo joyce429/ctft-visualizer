@@ -1,0 +1,305 @@
+{
+  "schemaVersion": "1.0.0",
+  "conventions": {
+    "analysisLatex": "X(j\\omega)=\\int_{-\\infty}^{\\infty}x(t)e^{-j\\omega t}\\,dt",
+    "synthesisLatex": "x(t)=\\frac{1}{2\\pi}\\int_{-\\infty}^{\\infty}X(j\\omega)e^{j\\omega t}\\,d\\omega",
+    "frequencyVariable": "omega",
+    "frequencyUnit": "rad/s",
+    "sincDefinitionLatex": "\\operatorname{sinc}(z)=\\frac{\\sin z}{z},\\quad\\operatorname{sinc}(0)=1",
+    "endpointConvention": "Piecewise values at isolated jump points do not change an ordinary CTFT; band-edge values use the symmetric half-value when inversion requires one."
+  },
+  "categories": [
+    {
+      "id": "generalized",
+      "nameZh": "广义函数与基础信号",
+      "nameEn": "Generalized and elementary signals",
+      "signals": [
+        {
+          "id": "unit-impulse",
+          "category": "generalized",
+          "nameZh": "单位冲激",
+          "nameEn": "Unit impulse",
+          "timeExpressionLatex": "\\delta(t)",
+          "frequencyExpressionLatex": "1",
+          "parameters": [],
+          "defaultValues": {},
+          "constraints": ["按狄拉克分布定义，不作为有限高度采样值"],
+          "spectrumType": "continuous",
+          "description": "时域冲激对应全频率单位常数谱。",
+          "implementationId": "unitImpulse",
+          "references": ["oppenheim-ss2e-ch4"]
+        },
+        {
+          "id": "shifted-impulse",
+          "category": "generalized",
+          "nameZh": "平移冲激",
+          "nameEn": "Shifted impulse",
+          "timeExpressionLatex": "A\\delta(t-t_0)",
+          "frequencyExpressionLatex": "Ae^{-j\\omega t_0}",
+          "parameters": [
+            {"id":"A","nameZh":"权重","symbol":"A","type":"number","default":1,"min":-10,"max":10,"step":0.1,"unit":"1"},
+            {"id":"t0","nameZh":"时移","symbol":"t_0","type":"number","default":1,"min":-10,"max":10,"step":0.1,"unit":"s"}
+          ],
+          "defaultValues": {"A":1,"t0":1},
+          "constraints": ["A,t_0 为实数；复权重由后续复参数输入扩展"],
+          "spectrumType": "continuous",
+          "description": "平移只在频域引入线性相位。",
+          "implementationId": "shiftedImpulse",
+          "references": ["oppenheim-ss2e-ch4"]
+        },
+        {
+          "id": "constant",
+          "category": "generalized",
+          "nameZh": "常数信号",
+          "nameEn": "Constant signal",
+          "timeExpressionLatex": "A",
+          "frequencyExpressionLatex": "2\\pi A\\delta(\\omega)",
+          "parameters": [{"id":"A","nameZh":"幅度","symbol":"A","type":"number","default":1,"min":-10,"max":10,"step":0.1,"unit":"1"}],
+          "defaultValues": {"A":1},
+          "constraints": ["按广义傅里叶变换理解"],
+          "spectrumType": "impulse",
+          "description": "直流信号的全部频谱质量位于零频。",
+          "implementationId": "constant",
+          "references": ["oppenheim-ss2e-ch4"]
+        },
+        {
+          "id": "unit-step",
+          "category": "generalized",
+          "nameZh": "单位阶跃",
+          "nameEn": "Unit step",
+          "timeExpressionLatex": "u(t)",
+          "frequencyExpressionLatex": "\\operatorname{PV}\\!\\left(\\frac{1}{j\\omega}\\right)+\\pi\\delta(\\omega)",
+          "parameters": [],
+          "defaultValues": {},
+          "constraints": ["1/(j\\omega) 必须按柯西主值分布解释", "u(0) 的单点取值不影响该变换对"],
+          "spectrumType": "composite",
+          "description": "同时包含主值分布与零频冲激，不能当作普通数组。",
+          "implementationId": "unitStep",
+          "references": ["oppenheim-ss2e-ch4", "upenn-ubc-ft-table"]
+        }
+      ]
+    },
+    {
+      "id": "aperiodic-pulses",
+      "nameZh": "非周期脉冲",
+      "nameEn": "Aperiodic pulses",
+      "signals": [
+        {
+          "id": "rectangular-pulse",
+          "category": "aperiodic-pulses",
+          "nameZh": "矩形脉冲",
+          "nameEn": "Rectangular pulse",
+          "timeExpressionLatex": "A\\,\\operatorname{rect}(t/T)",
+          "frequencyExpressionLatex": "AT\\,\\operatorname{sinc}(\\omega T/2)",
+          "parameters": [
+            {"id":"A","nameZh":"幅度","symbol":"A","type":"number","default":1,"min":-10,"max":10,"step":0.1,"unit":"1"},
+            {"id":"T","nameZh":"全脉宽","symbol":"T","type":"number","default":2,"min":0.01,"max":20,"exclusiveMin":true,"step":0.01,"unit":"s"}
+          ],
+          "defaultValues": {"A":1,"T":2},
+          "constraints": ["T>0", "rect(t/T)=1 当 |t|<T/2，区间外为 0"],
+          "spectrumType": "continuous",
+          "description": "零频极限为脉冲面积 AT。",
+          "implementationId": "rectangularPulse",
+          "references": ["oppenheim-ss2e-ch4"]
+        },
+        {
+          "id": "triangular-pulse",
+          "category": "aperiodic-pulses",
+          "nameZh": "三角脉冲",
+          "nameEn": "Triangular pulse",
+          "timeExpressionLatex": "A\\,\\operatorname{tri}(t/T)",
+          "frequencyExpressionLatex": "AT\\,\\operatorname{sinc}^2(\\omega T/2)",
+          "parameters": [
+            {"id":"A","nameZh":"峰值","symbol":"A","type":"number","default":1,"min":-10,"max":10,"step":0.1,"unit":"1"},
+            {"id":"T","nameZh":"半支撑宽度","symbol":"T","type":"number","default":1,"min":0.01,"max":20,"exclusiveMin":true,"step":0.01,"unit":"s"}
+          ],
+          "defaultValues": {"A":1,"T":1},
+          "constraints": ["T>0", "tri(t/T)=max(1-|t|/T,0)，总支撑宽度 2T"],
+          "spectrumType": "continuous",
+          "description": "可由两个矩形脉冲卷积并使用卷积性质得到。",
+          "implementationId": "triangularPulse",
+          "references": ["oppenheim-ss2e-ch4", "oregonstate-fourier-analysis"]
+        },
+        {
+          "id": "sinc-signal",
+          "category": "aperiodic-pulses",
+          "nameZh": "sinc 信号",
+          "nameEn": "Sinc signal",
+          "timeExpressionLatex": "A\\,\\operatorname{sinc}(Wt)=A\\frac{\\sin(Wt)}{Wt}",
+          "frequencyExpressionLatex": "\\frac{A\\pi}{W}\\,\\operatorname{rect}\\!\\left(\\frac{\\omega}{2W}\\right)",
+          "parameters": [
+            {"id":"A","nameZh":"幅度","symbol":"A","type":"number","default":1,"min":-10,"max":10,"step":0.1,"unit":"1"},
+            {"id":"W","nameZh":"截止角频率","symbol":"W","type":"number","default":3,"min":0.01,"max":100,"exclusiveMin":true,"step":0.01,"unit":"rad/s"}
+          ],
+          "defaultValues": {"A":1,"W":3},
+          "constraints": ["W>0", "|\\omega|=W 处按对称半值 A\\pi/(2W) 表示"],
+          "spectrumType": "continuous",
+          "description": "按非归一化 sinc 定义换算自教材的 sin(Wt)/(πt) 变换对。",
+          "implementationId": "sincSignal",
+          "references": ["oppenheim-ss2e-ch4"]
+        }
+      ]
+    },
+    {
+      "id": "decaying",
+      "nameZh": "衰减信号",
+      "nameEn": "Decaying signals",
+      "signals": [
+        {
+          "id": "one-sided-exponential",
+          "category": "decaying",
+          "nameZh": "单边指数衰减",
+          "nameEn": "One-sided exponential decay",
+          "timeExpressionLatex": "Ae^{-at}u(t)",
+          "frequencyExpressionLatex": "\\frac{A}{a+j\\omega}",
+          "parameters": [
+            {"id":"A","nameZh":"幅度","symbol":"A","type":"number","default":1,"min":-10,"max":10,"step":0.1,"unit":"1"},
+            {"id":"a","nameZh":"衰减率","symbol":"a","type":"number","default":1,"min":0.001,"max":20,"exclusiveMin":true,"step":0.001,"unit":"s^-1"}
+          ],
+          "defaultValues": {"A":1,"a":1},
+          "constraints": ["a>0（教材允许复 a 且 Re{a}>0；第一阶段数值控件限定实数）"],
+          "spectrumType": "continuous",
+          "description": "绝对可积的因果指数信号。",
+          "implementationId": "oneSidedExponential",
+          "references": ["oppenheim-ss2e-ch4", "mit-res6007-lecture8"]
+        },
+        {
+          "id": "two-sided-exponential",
+          "category": "decaying",
+          "nameZh": "双边指数衰减",
+          "nameEn": "Two-sided exponential decay",
+          "timeExpressionLatex": "Ae^{-a|t|}",
+          "frequencyExpressionLatex": "\\frac{2Aa}{a^2+\\omega^2}",
+          "parameters": [
+            {"id":"A","nameZh":"幅度","symbol":"A","type":"number","default":1,"min":-10,"max":10,"step":0.1,"unit":"1"},
+            {"id":"a","nameZh":"衰减率","symbol":"a","type":"number","default":1,"min":0.001,"max":20,"exclusiveMin":true,"step":0.001,"unit":"s^-1"}
+          ],
+          "defaultValues": {"A":1,"a":1},
+          "constraints": ["a>0"],
+          "spectrumType": "continuous",
+          "description": "实偶信号对应实偶频谱，由两侧积分或左右单边指数相加得到。",
+          "implementationId": "twoSidedExponential",
+          "references": ["upenn-ubc-ft-table", "utexas-ece313-solution9"]
+        },
+        {
+          "id": "t-times-exponential",
+          "category": "decaying",
+          "nameZh": "t 乘单边指数",
+          "nameEn": "t times one-sided exponential",
+          "timeExpressionLatex": "At e^{-at}u(t)",
+          "frequencyExpressionLatex": "\\frac{A}{(a+j\\omega)^2}",
+          "parameters": [
+            {"id":"A","nameZh":"幅度系数","symbol":"A","type":"number","default":1,"min":-10,"max":10,"step":0.1,"unit":"s^-1"},
+            {"id":"a","nameZh":"衰减率","symbol":"a","type":"number","default":1,"min":0.001,"max":20,"exclusiveMin":true,"step":0.001,"unit":"s^-1"}
+          ],
+          "defaultValues": {"A":1,"a":1},
+          "constraints": ["a>0"],
+          "spectrumType": "continuous",
+          "description": "可由频域微分性质从单边指数对得到。",
+          "implementationId": "tTimesExponential",
+          "references": ["oppenheim-ss2e-ch4"]
+        }
+      ]
+    },
+    {
+      "id": "periodic",
+      "nameZh": "周期信号与线谱",
+      "nameEn": "Periodic signals and line spectra",
+      "signals": [
+        {
+          "id": "complex-exponential",
+          "category": "periodic",
+          "nameZh": "复指数",
+          "nameEn": "Complex exponential",
+          "timeExpressionLatex": "Ae^{j\\omega_0t}",
+          "frequencyExpressionLatex": "2\\pi A\\delta(\\omega-\\omega_0)",
+          "parameters": [
+            {"id":"A","nameZh":"幅度","symbol":"A","type":"number","default":1,"min":-10,"max":10,"step":0.1,"unit":"1"},
+            {"id":"omega0","nameZh":"角频率","symbol":"\\omega_0","type":"number","default":3,"min":-100,"max":100,"step":0.1,"unit":"rad/s"}
+          ],
+          "defaultValues": {"A":1,"omega0":3},
+          "constraints": ["A 在第一阶段限定为实数；负 ω0 表示负频复指数"],
+          "spectrumType": "impulse",
+          "description": "在 +ω0 处仅有一条复频率谱线。",
+          "implementationId": "complexExponential",
+          "references": ["oppenheim-ss2e-ch4"]
+        },
+        {
+          "id": "cosine",
+          "category": "periodic",
+          "nameZh": "余弦",
+          "nameEn": "Cosine",
+          "timeExpressionLatex": "A\\cos(\\omega_0t)",
+          "frequencyExpressionLatex": "A\\pi[\\delta(\\omega-\\omega_0)+\\delta(\\omega+\\omega_0)]",
+          "parameters": [
+            {"id":"A","nameZh":"幅度","symbol":"A","type":"number","default":1,"min":-10,"max":10,"step":0.1,"unit":"1"},
+            {"id":"omega0","nameZh":"角频率","symbol":"\\omega_0","type":"number","default":3,"min":0.001,"max":100,"exclusiveMin":true,"step":0.001,"unit":"rad/s"}
+          ],
+          "defaultValues": {"A":1,"omega0":3},
+          "constraints": ["ω0>0；ω0=0 退化为常数，需合并重合冲激线"],
+          "spectrumType": "impulse",
+          "description": "正负频率各一条等权实冲激谱线。",
+          "implementationId": "cosine",
+          "references": ["oppenheim-ss2e-ch4"]
+        },
+        {
+          "id": "sine",
+          "category": "periodic",
+          "nameZh": "正弦",
+          "nameEn": "Sine",
+          "timeExpressionLatex": "A\\sin(\\omega_0t)",
+          "frequencyExpressionLatex": "\\frac{A\\pi}{j}[\\delta(\\omega-\\omega_0)-\\delta(\\omega+\\omega_0)]",
+          "parameters": [
+            {"id":"A","nameZh":"幅度","symbol":"A","type":"number","default":1,"min":-10,"max":10,"step":0.1,"unit":"1"},
+            {"id":"omega0","nameZh":"角频率","symbol":"\\omega_0","type":"number","default":3,"min":0.001,"max":100,"exclusiveMin":true,"step":0.001,"unit":"rad/s"}
+          ],
+          "defaultValues": {"A":1,"omega0":3},
+          "constraints": ["ω0>0"],
+          "spectrumType": "impulse",
+          "description": "正负频率谱线为共轭的纯虚权重，符号相反。",
+          "implementationId": "sine",
+          "references": ["oppenheim-ss2e-ch4"]
+        },
+        {
+          "id": "periodic-rectangular-wave",
+          "category": "periodic",
+          "nameZh": "周期矩形波",
+          "nameEn": "Periodic rectangular wave",
+          "timeExpressionLatex": "x(t+T_0)=x(t),\\quad x(t)=A\\ (|t|<T_1)",
+          "frequencyExpressionLatex": "\\sum_{k=-\\infty}^{\\infty}2A\\frac{\\sin(k\\omega_0T_1)}{k}\\delta(\\omega-k\\omega_0),\\quad\\omega_0=2\\pi/T_0",
+          "parameters": [
+            {"id":"A","nameZh":"幅度","symbol":"A","type":"number","default":1,"min":-10,"max":10,"step":0.1,"unit":"1"},
+            {"id":"T0","nameZh":"周期","symbol":"T_0","type":"number","default":4,"min":0.01,"max":50,"exclusiveMin":true,"step":0.01,"unit":"s"},
+            {"id":"T1","nameZh":"半脉宽","symbol":"T_1","type":"number","default":1,"min":0.001,"max":24.999,"exclusiveMin":true,"step":0.001,"unit":"s"},
+            {"id":"harmonics","nameZh":"显示谐波阶数","symbol":"K","type":"integer","default":10,"min":1,"max":200,"step":1,"unit":"1"}
+          ],
+          "defaultValues": {"A":1,"T0":4,"T1":1,"harmonics":10},
+          "constraints": ["T0>0", "0<T1<T0/2", "K 为正整数", "k=0 系数取极限 2Aω0T1"],
+          "spectrumType": "impulse",
+          "description": "已预留并实现有限显示窗内的线谱生成，解析表达仍代表无限冲激和。",
+          "implementationId": "periodicRectangularWave",
+          "references": ["oppenheim-ss2e-ch4"]
+        },
+        {
+          "id": "periodic-impulse-train",
+          "category": "periodic",
+          "nameZh": "周期冲激串",
+          "nameEn": "Periodic impulse train",
+          "timeExpressionLatex": "\\sum_{n=-\\infty}^{\\infty}A\\delta(t-nT_0)",
+          "frequencyExpressionLatex": "\\frac{2\\pi A}{T_0}\\sum_{k=-\\infty}^{\\infty}\\delta\\!\\left(\\omega-\\frac{2\\pi k}{T_0}\\right)",
+          "parameters": [
+            {"id":"A","nameZh":"冲激权重","symbol":"A","type":"number","default":1,"min":-10,"max":10,"step":0.1,"unit":"1"},
+            {"id":"T0","nameZh":"周期","symbol":"T_0","type":"number","default":2,"min":0.01,"max":50,"exclusiveMin":true,"step":0.01,"unit":"s"},
+            {"id":"harmonics","nameZh":"显示谐波阶数","symbol":"K","type":"integer","default":10,"min":1,"max":200,"step":1,"unit":"1"}
+          ],
+          "defaultValues": {"A":1,"T0":2,"harmonics":10},
+          "constraints": ["T0>0", "K 为正整数"],
+          "spectrumType": "impulse",
+          "description": "时间冲激串与频率冲激串互为变换对。",
+          "implementationId": "periodicImpulseTrain",
+          "references": ["oppenheim-ss2e-ch4", "mit-res6007-lecture8"]
+        }
+      ]
+    }
+  ]
+}

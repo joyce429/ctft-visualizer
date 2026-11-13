@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "1.0.0",
+  "convention": "X(j\\omega)=\\int_{-\\infty}^{\\infty}x(t)e^{-j\\omega t}dt",
+  "properties": [
+    {"id":"linearity","nameZh":"线性","timeLatex":"a x(t)+b y(t)","frequencyLatex":"aX(j\\omega)+bY(j\\omega)","conditions":["a,b 为常数"],"references":["oppenheim-ss2e-ch4"]},
+    {"id":"time-shift","nameZh":"时移","timeLatex":"x(t-t_0)","frequencyLatex":"e^{-j\\omega t_0}X(j\\omega)","conditions":[],"references":["oppenheim-ss2e-ch4"]},
+    {"id":"frequency-shift","nameZh":"频移","timeLatex":"e^{j\\omega_0t}x(t)","frequencyLatex":"X(j(\\omega-\\omega_0))","conditions":[],"references":["oppenheim-ss2e-ch4"]},
+    {"id":"conjugation","nameZh":"共轭","timeLatex":"x^*(t)","frequencyLatex":"X^*(-j\\omega)","conditions":[],"references":["oppenheim-ss2e-ch4"]},
+    {"id":"time-reversal","nameZh":"时间翻转","timeLatex":"x(-t)","frequencyLatex":"X(-j\\omega)","conditions":[],"references":["oppenheim-ss2e-ch4"]},
+    {"id":"time-scaling","nameZh":"时间尺度变换","timeLatex":"x(at)","frequencyLatex":"\\frac{1}{|a|}X\\!\\left(j\\frac{\\omega}{a}\\right)","conditions":["a\\ne0"],"references":["oppenheim-ss2e-ch4"]},
+    {"id":"convolution","nameZh":"时域卷积","timeLatex":"x(t)*y(t)","frequencyLatex":"X(j\\omega)Y(j\\omega)","conditions":[],"references":["oppenheim-ss2e-ch4"]},
+    {"id":"multiplication","nameZh":"时域相乘","timeLatex":"x(t)y(t)","frequencyLatex":"\\frac{1}{2\\pi}\\int_{-\\infty}^{\\infty}X(j\\theta)Y(j(\\omega-\\theta))d\\theta","conditions":[],"references":["oppenheim-ss2e-ch4"]},
+    {"id":"time-differentiation","nameZh":"时域微分","timeLatex":"\\frac{d}{dt}x(t)","frequencyLatex":"j\\omega X(j\\omega)","conditions":["按普通函数或广义函数意义理解"],"references":["oppenheim-ss2e-ch4"]},
+    {"id":"time-integration","nameZh":"从负无穷积分","timeLatex":"\\int_{-\\infty}^{t}x(\\tau)d\\tau","frequencyLatex":"\\operatorname{PV}\\!\\left[\\frac{X(j\\omega)}{j\\omega}\\right]+\\pi X(0)\\delta(\\omega)","conditions":["X(0) 有限时可直接使用表中形式；1/(jω) 按主值分布理解"],"references":["oppenheim-ss2e-ch4"]},
+    {"id":"frequency-differentiation","nameZh":"频域微分","timeLatex":"t x(t)","frequencyLatex":"j\\frac{d}{d\\omega}X(j\\omega)","conditions":[],"references":["oppenheim-ss2e-ch4"]},
+    {"id":"parseval","nameZh":"帕塞瓦尔关系","timeLatex":"\\int|x(t)|^2dt","frequencyLatex":"\\frac{1}{2\\pi}\\int|X(j\\omega)|^2d\\omega","conditions":["能量积分存在"],"references":["oppenheim-ss2e-ch4"]}
+  ]
+}

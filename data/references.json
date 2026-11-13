@@ -1,0 +1,76 @@
+{
+  "schemaVersion": "1.0.0",
+  "references": [
+    {
+      "id": "oppenheim-ss2e-ch4",
+      "type": "book",
+      "authors": ["Alan V. Oppenheim", "Alan S. Willsky", "S. Hamid Nawab"],
+      "title": "Signals and Systems",
+      "edition": "2nd edition",
+      "publisher": "Prentice Hall",
+      "year": 1996,
+      "locator": "Chapter 4; Section 4.6, Tables 4.1 and 4.2",
+      "url": "https://materias.df.uba.ar/l5a2021c1/files/2021/05/Alan-V.-Oppenheim-Alan-S.-Willsky-with-S.-Hamid-Signals-and-Systems-Prentice-Hall-1996.pdf",
+      "accessed": "2026-11-13",
+      "verification": "University of Buenos Aires-hosted scan; Section 4.6 and Tables 4.1/4.2 were inspected directly. No unverified page locator is added beyond the printed table section."
+    },
+    {
+      "id": "mit-res6007-lecture8",
+      "type": "course-notes",
+      "authors": ["Alan V. Oppenheim"],
+      "title": "Continuous-Time Fourier Transform, Lecture 8",
+      "organization": "MIT OpenCourseWare, RES.6-007 Signals and Systems",
+      "year": 2011,
+      "locator": "Lecture 8 notes",
+      "url": "https://ocw.mit.edu/courses/res-6-007-signals-and-systems-spring-2011/resources/mitres_6_007s11_lec08/",
+      "accessed": "2026-11-13",
+      "verification": "MIT OCW course material; confirms the analysis/synthesis convention, periodic line spectra, and the one-sided exponential example."
+    },
+    {
+      "id": "mit-6003-fourier-transform",
+      "type": "course-notes",
+      "authors": ["Dennis Freeman"],
+      "title": "Fourier Transform",
+      "organization": "MIT OpenCourseWare, 6.003 Signals and Systems",
+      "year": 2011,
+      "locator": "Lecture 16",
+      "url": "https://ocw.mit.edu/courses/6-003-signals-and-systems-fall-2011/resources/mit6_003f11_lec16/",
+      "accessed": "2026-11-13",
+      "verification": "Official MIT OCW lecture notes used as an independent course-level cross-check."
+    },
+    {
+      "id": "upenn-ubc-ft-table",
+      "type": "course-handout",
+      "authors": [],
+      "title": "Table of Fourier Transform Pairs",
+      "organization": "University of Pennsylvania CIS (handout credits UBC M267 resources)",
+      "locator": "Transform-pair table",
+      "url": "https://www.cis.upenn.edu/~cis580/Spring2018/fourierTable.pdf",
+      "accessed": "2026-11-13",
+      "verification": "Uses the same angular-frequency analysis convention; cross-checks the two-sided exponential and unit-step distribution."
+    },
+    {
+      "id": "oregonstate-fourier-analysis",
+      "type": "course-notes",
+      "authors": ["K. Webb"],
+      "title": "Section 7: Fourier Analysis",
+      "organization": "Oregon State University",
+      "locator": "Fourier Transform — Triangular Pulse",
+      "url": "https://web.engr.oregonstate.edu/~webbky/ESC440_files/Section%207%20Fourier%20Analysis.pdf",
+      "accessed": "2026-11-13",
+      "verification": "University course notes used to cross-check the triangular-pulse sinc-squared transform; notation is converted to this project's sinc convention."
+    },
+    {
+      "id": "utexas-ece313-solution9",
+      "type": "course-solution",
+      "authors": [],
+      "title": "ECE313 Linear Systems and Signals, Solution 9",
+      "organization": "The University of Texas at Austin",
+      "year": 2023,
+      "locator": "Part (e), transform of exp(-a|t|)",
+      "url": "https://users.ece.utexas.edu/~bevans/courses/signals/homework/fall2023/solution9.pdf",
+      "accessed": "2026-11-13",
+      "verification": "Direct integral derivation under the same X(jω) convention."
+    }
+  ]
+}

@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="离线连续时间傅里叶变换可视化实验室">
+  <title>Fourier Transform Lab · 连续时间傅里叶变换可视化实验室</title>
+  <link rel="stylesheet" href="assets/app.css">
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></div>
+    <div class="brand-copy">
+      <h1>Fourier Transform Lab</h1>
+      <p>连续时间傅里叶变换可视化实验室</p>
+    </div>
+    <nav class="top-nav" aria-label="页面导航">
+      <a href="#basic-signal">基本信号</a>
+      <a href="#transform-property">变换性质</a>
+      <a href="#quick-reference">公式速查</a>
+    </nav>
+    <div class="header-meta">
+      <span class="status-dot"></span>
+      <span>解析计算</span>
+      <span class="header-divider"></span>
+      <span>离线可用</span>
+    </div>
+  </header>
+
+  <main class="app-shell">
+    <aside class="control-panel" aria-label="信号控制面板">
+      <section class="panel-section" id="basic-signal">
+        <div class="section-heading">
+          <span class="step-number">01</span>
+          <div><h2>选择基本信号</h2><p>Select a signal pair</p></div>
+        </div>
+        <label class="field-label" for="signal-select">信号类型</label>
+        <select id="signal-select" data-testid="signal-select"></select>
+      </section>
+
+      <section class="panel-section formula-preview">
+        <div class="eyebrow">时域定义</div>
+        <div id="sidebar-time-formula" class="math-display compact"></div>
+        <p id="signal-description" class="signal-description"></p>
+      </section>
+
+      <section class="panel-section">
+        <div class="section-heading">
+          <span class="step-number">02</span>
+          <div><h2>调整参数</h2><p>Parameters update in real time</p></div>
+        </div>
+        <div id="parameter-controls" class="parameter-controls" data-testid="parameter-controls"></div>
+        <div id="parameter-error" class="error-message" role="alert" hidden></div>
+      </section>
+
+      <section class="panel-section display-options">
+        <div class="section-row">
+          <div><span class="field-label standalone">相位单位</span><small>Phase unit</small></div>
+          <div class="segmented" role="group" aria-label="相位单位">
+            <button type="button" class="active" data-phase-unit="rad">弧度</button>
+            <button type="button" data-phase-unit="deg">角度</button>
+          </div>
+        </div>
+        <div class="section-row option-row">
+          <div><span class="field-label standalone">相位显示</span><small>Phase branch</small></div>
+          <div class="segmented" role="group" aria-label="相位显示模式">
+            <button type="button" class="active" data-phase-mode="principal">主值</button>
+            <button type="button" data-phase-mode="unwrapped">展开</button>
+          </div>
+        </div>
+        <div class="frequency-range-control">
+          <div><span class="field-label standalone">频率显示范围</span><small>ωmax · rad/s</small></div>
+          <div class="range-with-auto">
+            <input id="frequency-range" type="number" min="0.1" max="1000" step="0.1" aria-label="频率显示最大绝对值">
+            <button type="button" id="frequency-auto" class="secondary-button">自动</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel-section transform-controls" id="transform-property" aria-label="信号变换">
+        <div class="section-heading">
+          <span class="step-number transform-step">03</span>
+          <div><h2>信号变换</h2><p>Transform the analytic model</p></div>
+        </div>
+        <label class="field-label" for="transform-select">变换类型</label>
+        <select id="transform-select" data-testid="transform-select">
+          <option value="none">无变换</option>
+          <option value="reverse">时间翻转 x(−t)</option>
+          <option value="shift">时间平移 x(t−t₀)</option>
+          <option value="scale">时间尺度 x(at)</option>
+          <option value="differentiate">时域微分 dx(t)/dt</option>
+          <option value="integrate">从负无穷累积积分</option>
+        </select>
+        <div id="transform-parameter" class="transform-parameter"></div>
+        <span class="field-label standalone display-label">图形显示</span>
+        <div class="segmented wide" role="group" aria-label="图形显示模式">
+          <button type="button" class="active" data-display-mode="original">仅原始</button>
+          <button type="button" data-display-mode="transformed">仅变换</button>
+          <button type="button" data-display-mode="both">同时显示</button>
+        </div>
+        <div class="transform-actions">
+          <button type="button" id="restore-original" class="secondary-button">恢复原始信号</button>
+          <button type="button" id="reset-transform" class="secondary-button">重置变换参数</button>
+        </div>
+      </section>
+
+    </aside>
+
+    <section class="workspace" aria-label="傅里叶变换图形工作区">
+      <div class="workspace-toolbar">
+        <div>
+          <span class="workspace-kicker">CURRENT SIGNAL</span>
+          <h2 id="current-signal-title">矩形脉冲</h2>
+        </div>
+        <div class="toolbar-badges">
+          <span id="spectrum-type-badge" class="type-badge">连续频谱</span>
+          <span class="convention-badge">ω · rad/s</span>
+        </div>
+      </div>
+
+      <div class="export-toolbar" aria-label="导出和导入">
+        <div class="export-group">
+          <span>图像</span>
+          <button type="button" data-export-png="time">时域 PNG</button>
+          <button type="button" data-export-png="magnitude">幅度 PNG</button>
+          <button type="button" data-export-png="phase">相位 PNG</button>
+        </div>
+        <div class="export-group">
+          <span>数据</span>
+          <button type="button" id="export-time-csv">时域 CSV</button>
+          <button type="button" id="export-frequency-csv">连续谱 CSV</button>
+          <button type="button" id="export-impulse-csv">冲激谱 CSV</button>
+        </div>
+        <div class="export-group">
+          <span>配置</span>
+          <button type="button" id="export-config">导出 JSON</button>
+          <button type="button" id="import-config">导入 JSON</button>
+          <input id="import-config-file" type="file" accept="application/json,.json" hidden>
+        </div>
+        <div id="export-status" class="export-status" role="status"></div>
+      </div>
+
+      <div id="special-notice" class="special-notice" hidden></div>
+      <div id="component-summary" class="component-summary" hidden></div>
+
+      <article class="chart-card">
+        <div class="chart-heading">
+          <div><span class="chart-index">A</span><h3>时域信号</h3><code>x(t)</code></div>
+          <p id="time-range-label"></p>
+        </div>
+        <div id="time-chart" class="chart" data-testid="time-chart" role="img" aria-label="时域信号图"></div>
+      </article>
+
+      <article class="chart-card">
+        <div class="chart-heading">
+          <div><span class="chart-index">B</span><h3>幅度谱</h3><code>|X(jω)|</code></div>
+          <p>悬停查看 Re、Im 与幅值</p>
+        </div>
+        <div id="magnitude-chart" class="chart" data-testid="magnitude-chart" role="img" aria-label="频域幅度谱图"></div>
+      </article>
+
+      <article class="chart-card">
+        <div class="chart-heading">
+          <div><span class="chart-index">C</span><h3>相位谱</h3><code>arg[X(jω)]</code></div>
+          <p id="phase-unit-label">弧度 · 零幅值处未定义</p>
+        </div>
+        <div id="phase-chart" class="chart" data-testid="phase-chart" role="img" aria-label="频域相位谱图"></div>
+      </article>
+
+      <article class="analysis-card comparison-analysis" id="analysis-panel">
+        <div class="analysis-header">
+          <div><span class="workspace-kicker">TRANSFORM PROPERTY</span><h3 id="property-title">原始与变换后的解析表达</h3></div>
+          <span>结构化数学变换 · 非图形平移</span>
+        </div>
+        <div class="formula-comparison">
+          <div class="formula-tile original-tile"><span>ORIGINAL · TIME</span><div id="time-formula" class="math-display"></div></div>
+          <div class="formula-tile original-tile"><span>ORIGINAL · FREQUENCY</span><div id="frequency-formula" class="math-display"></div></div>
+          <div class="formula-tile transformed-tile"><span>TRANSFORMED · TIME</span><div id="transformed-time-formula" class="math-display"></div></div>
+          <div class="formula-tile transformed-tile"><span>TRANSFORMED · FREQUENCY</span><div id="transformed-frequency-formula" class="math-display"></div></div>
+        </div>
+        <div class="property-strip">
+          <div id="property-formula" class="math-display"></div>
+          <p id="property-explanation"></p>
+        </div>
+        <div id="current-parameters" class="parameter-chips"></div>
+        <div class="analysis-grid">
+          <div><h4>适用条件</h4><ul id="constraint-list"></ul></div>
+          <div><h4>统一数学约定</h4><p>X(jω)=∫x(t)e<sup>−jωt</sup>dt</p><p>sinc(z)=sin(z)/z，sinc(0)=1</p></div>
+        </div>
+      </article>
+
+      <article class="teaching-card" id="quick-reference">
+        <div class="analysis-header"><div><span class="workspace-kicker">CTFT 性质表</span><h3>傅里叶变换性质速查</h3></div><span>公式使用统一约定并由 KaTeX 排版</span></div>
+        <div id="property-reference-grid" class="property-reference-grid"></div>
+      </article>
+    </section>
+  </main>
+
+  <footer>Oppenheim · Signals and Systems, 2nd Ed. · Chapter 4 conventions</footer>
+  <script src="assets/app.js"></script>
+</body>
+</html>
