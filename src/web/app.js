@@ -9,6 +9,7 @@ import { createSignalModel, getSignalDefinition } from "../signals/registry.js";
 import { comparisonRanges, sampleSpectrum, sampleTimeSignal } from "../plotting/sampling.js";
 import { createTransformOperation, transformSignalModel } from "../transforms/signal-transform.js";
 import { rowsToCsv } from "../io/export-data.js";
+import { initDualSignalLab } from "./dual-signal-lab.js";
 
 const colors = {
   blue: "#2468d8",
@@ -925,4 +926,5 @@ renderPropertyReference();
 renderParameterControls();
 renderTransformParameter();
 renderWorkspace();
+initDualSignalLab();
 document.body.dataset.appReady = "true";

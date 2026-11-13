@@ -16,9 +16,8 @@
       <p>连续时间傅里叶变换可视化实验室</p>
     </div>
     <nav class="top-nav" aria-label="页面导航">
-      <a href="#basic-signal">基本信号</a>
-      <a href="#transform-property">变换性质</a>
-      <a href="#quick-reference">公式速查</a>
+      <button type="button" class="nav-tab active" data-lab-view="single">单信号分析</button>
+      <button type="button" class="nav-tab" data-lab-view="dual">双信号运算</button>
     </nav>
     <div class="header-meta">
       <span class="status-dot"></span>
@@ -28,7 +27,7 @@
     </div>
   </header>
 
-  <main class="app-shell">
+  <main class="app-shell" id="single-signal-lab">
     <aside class="control-panel" aria-label="信号控制面板">
       <section class="panel-section" id="basic-signal">
         <div class="section-heading">
@@ -194,6 +193,85 @@
         <div class="analysis-header"><div><span class="workspace-kicker">CTFT 性质表</span><h3>傅里叶变换性质速查</h3></div><span>公式使用统一约定并由 KaTeX 排版</span></div>
         <div id="property-reference-grid" class="property-reference-grid"></div>
       </article>
+    </section>
+  </main>
+
+  <main class="dual-lab" id="dual-signal-lab" hidden>
+    <section class="dual-hero">
+      <div><span class="workspace-kicker">DUAL-SIGNAL OPERATIONS</span><h2>双信号运算实验室</h2><p>用结构化信号组合观察线性性质与连续时间卷积全过程</p></div>
+      <div class="dual-mode-switch" role="group" aria-label="双信号运算类型">
+        <button type="button" class="active" data-dual-operation="linear">线性叠加</button>
+        <button type="button" data-dual-operation="convolution">卷积运算</button>
+      </div>
+    </section>
+
+    <section class="dual-input-grid">
+      <article class="signal-builder signal-builder-a">
+        <div class="builder-heading"><div><span class="signal-dot dot-a"></span><h3>信号 A · x₁(t)</h3></div><button type="button" id="dual-add-a" class="secondary-button">添加信号项</button></div>
+        <div id="dual-terms-a" class="term-list"></div>
+        <div id="dual-formula-a" class="math-display compact"></div>
+      </article>
+      <article class="signal-builder signal-builder-b">
+        <div class="builder-heading"><div><span class="signal-dot dot-b"></span><h3>信号 B · x₂(t)</h3></div><button type="button" id="dual-add-b" class="secondary-button">添加信号项</button></div>
+        <div id="dual-terms-b" class="term-list"></div>
+        <div id="dual-formula-b" class="math-display compact"></div>
+      </article>
+    </section>
+
+    <section class="dual-operation-panel">
+      <div id="linear-coefficients" class="coefficient-controls">
+        <label>叠加系数 a<input id="dual-coefficient-a" type="number" value="1" step="0.1"></label>
+        <div class="math-display">y(t)=a x₁(t)+b x₂(t)</div>
+        <label>叠加系数 b<input id="dual-coefficient-b" type="number" value="1" step="0.1"></label>
+      </div>
+      <div id="convolution-controls" class="convolution-controls" hidden>
+        <button type="button" id="dual-play" class="primary-button">播放</button>
+        <button type="button" id="dual-step" class="secondary-button">单步</button>
+        <button type="button" id="dual-reset-animation" class="secondary-button">重置</button>
+        <label class="t0-slider">输出时刻 t₀ <input id="dual-t0" type="range" min="-5" max="5" step="0.05" value="0"><output id="dual-t0-value">0</output></label>
+        <label>速度<select id="dual-speed"><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option></select></label>
+      </div>
+      <div class="dual-actions">
+        <button type="button" id="dual-swap" class="secondary-button">交换 A / B</button>
+        <button type="button" id="dual-reset" class="secondary-button">恢复默认</button>
+        <button type="button" id="dual-export-config" class="secondary-button">导出配置 JSON</button>
+        <button type="button" id="dual-import-config" class="secondary-button">导入配置 JSON</button>
+        <input id="dual-import-file" type="file" accept="application/json,.json" hidden>
+        <button type="button" id="dual-export-csv" class="secondary-button">导出结果 CSV</button>
+      </div>
+      <div id="dual-status" class="dual-status" role="status"></div>
+    </section>
+
+    <section id="dual-warning" class="special-notice" hidden></section>
+
+    <section class="dual-chart-grid">
+      <article class="chart-card dual-wide-card">
+        <div class="chart-heading"><div><span class="chart-index">1</span><h3>输入与输出时域对照</h3><code>x₁(t), x₂(t), y(t)</code></div><button type="button" class="mini-export" data-dual-png="dual-time">PNG</button></div>
+        <div id="dual-time-chart" class="chart dual-chart" data-testid="dual-time-chart"></div>
+      </article>
+      <article class="chart-card dual-wide-card" id="convolution-process-card" hidden>
+        <div class="chart-heading"><div><span class="chart-index">2</span><h3>卷积翻转、平移、相乘与积分</h3><code>x₁(τ)x₂(t₀−τ)</code></div><p id="dual-integral-value"></p></div>
+        <div id="dual-process-chart" class="chart dual-process-chart" data-testid="dual-process-chart"></div>
+      </article>
+      <article class="chart-card">
+        <div class="chart-heading"><div><span class="chart-index">3</span><h3>幅度谱对照</h3><code>|X₁|, |X₂|, |Y|</code></div><button type="button" class="mini-export" data-dual-png="dual-magnitude">PNG</button></div>
+        <div id="dual-magnitude-chart" class="chart dual-chart" data-testid="dual-magnitude-chart"></div>
+      </article>
+      <article class="chart-card">
+        <div class="chart-heading"><div><span class="chart-index">4</span><h3>相位谱对照</h3><code>arg X₁, arg X₂, arg Y</code></div><button type="button" class="mini-export" data-dual-png="dual-phase">PNG</button></div>
+        <div id="dual-phase-chart" class="chart dual-chart" data-testid="dual-phase-chart"></div>
+      </article>
+    </section>
+
+    <section class="analysis-card dual-formula-panel">
+      <div class="analysis-header"><div><span class="workspace-kicker">OPERATION PROPERTY</span><h3>时域与频域运算关系</h3></div><span id="dual-method-badge">解析复频谱运算</span></div>
+      <div class="dual-formula-grid">
+        <div class="formula-tile original-tile"><span>INPUT A · FREQUENCY</span><div id="dual-frequency-a" class="math-display"></div></div>
+        <div class="formula-tile original-tile"><span>INPUT B · FREQUENCY</span><div id="dual-frequency-b" class="math-display"></div></div>
+        <div class="formula-tile transformed-tile"><span>RESULT · TIME</span><div id="dual-result-time" class="math-display"></div></div>
+        <div class="formula-tile transformed-tile"><span>RESULT · FREQUENCY</span><div id="dual-result-frequency" class="math-display"></div></div>
+      </div>
+      <div class="property-strip"><div id="dual-property-formula" class="math-display"></div><p id="dual-property-explanation"></p></div>
     </section>
   </main>
 

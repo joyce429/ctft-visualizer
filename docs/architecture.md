@@ -45,7 +45,9 @@ data/*.json ──build-data.mjs──> src/data/generated/signals.generated.js
 - `src/transforms/properties.js`：时移、翻转、尺度、微分和从负无穷积分的频域操作。
 - `src/plotting/sampling.js`：把数学频谱转换为绘图数据，统一处理幅值、`atan2` 相位、零幅值、跳变断线和分布奇点。
 - `src/transforms/signal-transform.js`：把频域性质、时域求值映射、解析公式和时域冲激映射组合成新的结构化信号模型；提供单项操作与操作队列接口。
+- `src/operations/signal-expression.js`：双信号表达式树、复频谱加法/乘法、冲激谱线合并、数值卷积和冲激筛选性质。
 - `src/web/app.js`：从数据库建立信号选择器与参数控件，把数学模型传给绘图适配层和 ECharts。
+- `src/web/dual-signal-lab.js`：双输入组合编辑器、线性/卷积模式、卷积动画、双信号导入导出和四图联动。
 - `src/io/export-data.js`：CSV 转义和固定列宽序列化。
 - `src/web/index.html`、`styles.css`：科研软件风格的响应式布局。
 - `scripts/build-web.mjs`：使用 esbuild 把现有 ES module、ECharts、KaTeX 和字体打进 `dist/`。
@@ -138,3 +140,23 @@ src/web + math modules → esbuild → dist/
 - `verify-release` 比较两个发布目录的文件列表与 SHA-256 内容；静态版仅额外包含空 `.nojekyll`。
 - GitHub Pages 工作流先执行完整 `npm run check`，再上传 `dist/`。
 - 不注册 Service Worker，确保 `file://` 兼容；后续 PWA 只能是 HTTPS 部署的可选增强。
+
+## 双信号表达式与卷积模型
+
+表达式树使用纯 JSON 节点，不执行用户字符串：
+
+```json
+{
+  "type": "sum",
+  "children": [
+    {"type": "scale", "factor": 2, "child": {"type": "leaf", "signalId": "rectangular-pulse", "parameters": {"A": 1, "T": 2}}},
+    {"type": "shift", "t0": 1, "child": {"type": "leaf", "signalId": "one-sided-exponential", "parameters": {"A": 1, "a": 1}}}
+  ]
+}
+```
+
+- `sum` 在时域递归求和，在频域组合连续项并合并同频冲激复系数。
+- `scale / shift / timeScale` 复用既有 CTFT 性质实现，不移动已采样曲线伪装结果。
+- `convolution` 的频域部分调用复频谱乘法；含 PV/符号分布或两个冲激频谱时拒绝未定义乘积。
+- 普通点值信号的时域卷积在两个有效窗交集上用中点积分，默认800区间；指数窗截到约12个时间常数并在页面标记数值近似。
+- 一个输入为单冲激时直接应用筛选性质，保持冲激位置和系数，不参与浮点尖峰积分。

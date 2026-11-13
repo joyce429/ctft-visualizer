@@ -22,6 +22,11 @@ test("offline web build contains local HTML, CSS, and classic bundled JavaScript
   assert.match(html, /id="export-frequency-csv"/);
   assert.match(html, /id="export-impulse-csv"/);
   assert.match(html, /id="import-config-file"/);
+  assert.match(html, /id="dual-signal-lab"/);
+  assert.match(html, /data-dual-operation="linear"/);
+  assert.match(html, /data-dual-operation="convolution"/);
+  assert.match(html, /id="dual-process-chart"/);
+  assert.match(html, /id="dual-export-config"/);
   assert.doesNotMatch(html, /id="guided-experiments"/);
   assert.doesNotMatch(html, /id="lesson-panel"/);
   assert.doesNotMatch(html, /id="user-guide"/);

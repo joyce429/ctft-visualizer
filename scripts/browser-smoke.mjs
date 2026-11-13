@@ -166,6 +166,62 @@ try {
   })()`);
   if (Number(controls.range) !== 20 || !controls.deg || !controls.unwrapped) throw new Error(`Display controls failed: ${JSON.stringify(controls)}`);
 
+  const dualLinear = await evaluate(`(() => {
+    document.querySelector('[data-lab-view="dual"]').click();
+    const b=document.querySelector('#dual-coefficient-b'); b.value='-1'; b.dispatchEvent(new Event('input',{bubbles:true}));
+    return {
+      visible: !document.querySelector('#dual-signal-lab').hidden,
+      singleHidden: document.querySelector('#single-signal-lab').hidden,
+      termsA: document.querySelectorAll('#dual-terms-a .signal-term').length,
+      termsB: document.querySelectorAll('#dual-terms-b .signal-term').length,
+      canvases: document.querySelectorAll('#dual-signal-lab canvas').length,
+      katexErrors: document.querySelectorAll('#dual-signal-lab .katex-error').length,
+      formula: document.querySelector('#dual-result-frequency').textContent,
+      warning: document.querySelector('#dual-warning').textContent,
+      status: document.querySelector('#dual-status').textContent
+    };
+  })()`);
+  if (!dualLinear.visible || !dualLinear.singleHidden || dualLinear.termsA !== 1 || dualLinear.termsB !== 1 || dualLinear.canvases < 3 || dualLinear.katexErrors !== 0 || !dualLinear.formula.includes('-1')) throw new Error(`Dual linear UI failed: ${JSON.stringify(dualLinear)}`);
+
+  const dualConvolution = await evaluate(`(() => {
+    document.querySelector('#dual-reset').click();
+    document.querySelector('[data-dual-operation="convolution"]').click();
+    const slider=document.querySelector('#dual-t0'); slider.value='1'; slider.dispatchEvent(new Event('input',{bubbles:true}));
+    return {
+      processVisible: !document.querySelector('#convolution-process-card').hidden,
+      operationActive: document.querySelector('[data-dual-operation="convolution"]').classList.contains('active'),
+      integral: document.querySelector('#dual-integral-value').textContent,
+      method: document.querySelector('#dual-method-badge').textContent,
+      warning: document.querySelector('#dual-warning').textContent,
+      t0: document.querySelector('#dual-t0-value').value
+    };
+  })()`);
+  if (!dualConvolution.processVisible || !dualConvolution.operationActive || !dualConvolution.integral.includes('y(t₀)=1') || !dualConvolution.method.includes('数值近似') || dualConvolution.warning || Number(dualConvolution.t0) !== 1) throw new Error(`Dual convolution UI failed: ${JSON.stringify(dualConvolution)}`);
+
+  const beforeDualDownloads = new Set(await readdir(downloads));
+  await evaluate(`(() => { document.querySelector('#dual-export-config').click(); document.querySelector('#dual-export-csv').click(); document.querySelector('[data-dual-png="dual-time"]').click(); return true; })()`);
+  await waitFor(async () => {
+    const current=(await readdir(downloads)).filter((name)=>!beforeDualDownloads.has(name));
+    return current.length >= 3 && current.every((name)=>!name.endsWith('.crdownload'));
+  }, "dual-signal exports", 15000);
+  const dualDownloads = (await readdir(downloads)).filter((name) => !beforeDualDownloads.has(name));
+  if (!dualDownloads.some((name)=>name.endsWith('.json')) || !dualDownloads.some((name)=>name.endsWith('.csv')) || !dualDownloads.some((name)=>name.endsWith('.png'))) throw new Error(`Missing dual exports: ${dualDownloads.join(', ')}`);
+
+  const dualConfigPath = join(temporary, "dual-import-config.json");
+  await writeFile(dualConfigPath, JSON.stringify({
+    schemaVersion: 1, operation: "linear", coefficientA: 2, coefficientB: -1, t0: 0, speed: 1,
+    inputs: {
+      a: [{ signalId: "rectangular-pulse", coefficient: 1, shift: 0, scale: 1, parameters: { A: 1, T: 2 } }],
+      b: [{ signalId: "one-sided-exponential", coefficient: 1, shift: 0.5, scale: 1, parameters: { A: 1, a: 1 } }]
+    }
+  }), "utf8");
+  const { root: dualDocument } = await cdp.send("DOM.getDocument", {}, sessionId);
+  const { nodeId: dualInputNode } = await cdp.send("DOM.querySelector", { nodeId: dualDocument.nodeId, selector: "#dual-import-file" }, sessionId);
+  await cdp.send("DOM.setFileInputFiles", { nodeId: dualInputNode, files: [dualConfigPath] }, sessionId);
+  await waitFor(() => evaluate("document.querySelector('#dual-terms-b select[data-field=\"signalId\"]').value === 'one-sided-exponential' && document.querySelector('#dual-coefficient-a').value === '2'"), "dual configuration import");
+
+  await evaluate(`document.querySelector('[data-lab-view="single"]').click()`);
+
   const beforeDownloads = new Set(await readdir(downloads));
   await evaluate(`(() => {
     document.querySelector('#export-time-csv').click(); document.querySelector('#export-frequency-csv').click();
@@ -207,7 +263,7 @@ try {
   if (frequencyHeader !== "series,omega,real,imag,magnitude,phase,phase_unit") throw new Error(`Unexpected frequency CSV header: ${frequencyHeader}`);
   if (impulseHeader !== "series,omega,coefficient_real,coefficient_imag,coefficient_magnitude,coefficient_phase,phase_unit,label") throw new Error(`Unexpected impulse CSV header: ${impulseHeader}`);
 
-  console.log(JSON.stringify({ browser: browserPath, protocol: "file://", initial, formulaRendering, integration, differentiation, controls, downloads: files.sort(), remoteRequests: 0, errors: 0 }, null, 2));
+  console.log(JSON.stringify({ browser: browserPath, protocol: "file://", initial, formulaRendering, integration, differentiation, controls, dualLinear, dualConvolution, dualDownloads: dualDownloads.sort(), downloads: files.sort(), remoteRequests: 0, errors: 0 }, null, 2));
   console.log("Browser interaction test: PASS");
 } finally {
   try { cdp.close(); } catch { /* ignore */ }
